@@ -5,9 +5,14 @@ app.controller('MainCtrl', [
   function($scope){
     $scope.test = 'Hello World!';
     $scope.posts = [
-      'post 1',
-      'post 2',
-      'post 3'
+      {title: 'post 1', upvotes: 5},
+      {title: 'post 2', upvotes: 2},
+      {title: 'post 3', upvotes: 15},
     ];
+    $scope.addPost = function(){
+      if(!$scope.title || $scope.title === '') {return; }
+      $scope.posts.push({title: $scope.title, upvotes: 0});
+      $scope.title = '';
+    };
   }
 ]);
