@@ -8,7 +8,12 @@ app.config([
       .state('home', {
         url: '/home',
         templateUrl: '/home.html',
-        controller: 'MainCtrl'
+        controller: 'MainCtrl',
+        resolve: {
+          postPromise: ['posts', function(posts) {
+            return posts.getAll();
+          }]
+        }
       })
       .state('posts', {
         url: '/posts/{id}',
@@ -19,10 +24,30 @@ app.config([
   }
 ]);
 
-app.factory('posts', [function(){
+app.factory('posts', ['$http', function($http){
   var o = {
     posts: [{title: 'Sunny Day', upvotes: 20, link: 'abc.def'}]
   };
+
+  o.getAll = function() {
+    return $http.get('/posts').success(function(data) {
+      angular.copy(data, o.posts);
+    });
+  };
+
+  o.create = function(post) {
+    return $http.post('/posts', post).success(function(data) {
+      o.posts.push(data);
+    });
+  }
+
+  o.upvote = function(post) {
+    return $http.put('/posts/' + post._id + '/upvote')
+      .success(function(data) {
+        post.upvotes += 1;
+      });
+  };
+
   return o;
 }]);
 
@@ -33,20 +58,15 @@ app.controller('MainCtrl', [
     $scope.posts = posts.posts;
     $scope.addPost = function(){
       if(!$scope.title || $scope.title === '') {return; }
-      $scope.posts.push({
+      posts.create({
         title: $scope.title,
         link: $scope.link,
-        upvotes: 0,
-        comments: [
-          {author: 'Billie', body: 'Come feed the rain', upvotes: 0},
-          {author: 'Jean', body: 'A distant ship, smoke o the horizon', upvotes: 0}
-        ]
       });
       $scope.title = '';
       $scope.link = '';
     };
     $scope.incrementUpvotes = function(post) {
-      post.upvotes += 1;
+      posts.upvote(post);
     };
     $scope.decrementUpvotes = function(post) {
       post.upvotes -= 1;
