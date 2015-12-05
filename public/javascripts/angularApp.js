@@ -50,7 +50,9 @@ app.config([
 ]);
 
 app.factory('posts', ['$http', 'auth', function($http, auth){
-  var o = {};
+  var o = {
+    posts: []
+  };
 
   o.getAll = function() {
     return $http.get('/posts').success(function(data) {
@@ -64,7 +66,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
     }).success(function(data) {
       o.posts.push(data);
     });
-  }
+  };
 
   o.upvote = function(post) {
     return $http.put('/posts/' + post._id + '/upvote', null, {
@@ -141,12 +143,11 @@ app.factory('auth', ['$http', '$window', function($http, $window) {
   };
 
   auth.logOut = function() {
-    console.log("Logging out");
     $window.localStorage.removeItem('flapper-news-token');
   };
 
   return auth;
-}])
+}]);
 
 app.controller('MainCtrl', [
   '$scope',
@@ -219,7 +220,7 @@ app.controller('AuthCtrl', [
         $state.go('home');
       });
     };
-  }])
+  }]);
 
 app.controller('NavCtrl', [
   '$scope',

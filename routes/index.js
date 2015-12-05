@@ -95,7 +95,7 @@ router.put('/posts/:post/comments/:comment/upvote', auth, function(req, res, nex
     if(err) { return next(err); }
 
     res.json(comment);
-  })
+  });
 });
 
 // Register endpoint
